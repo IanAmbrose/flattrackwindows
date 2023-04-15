@@ -1,0 +1,22 @@
+<% include('./partials/header') %>
+
+<div class="row">
+  <div class="col-md-6 offset-md-3">
+    <h1>Create a new group</h1>
+    <hr>
+    <% if (messages.error) { %>
+    <div class="alert alert-danger">
+      <%= messages.error %>
+    </div>
+    <% } %>
+    <form method="POST" action="/create-group">
+      <div class="form-group">
+        <label for="groupName">Group name</label>
+        <input type="text" class="form-control" id="groupName" name="groupName" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Create group</button>
+    </form>
+  </div>
+</div>
+
+<% include('./partials/footer') %>

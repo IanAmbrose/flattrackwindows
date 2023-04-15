@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Welcome</title>
+</head>
+<body>
+  <h1>Welcome, <%= username %>!</h1>
+  <p>Here are your groups:</p>
+  <% if (userGroups.length > 0) { %>
+    <ul>
+    <% userGroups.forEach(group => { %>
+      <li><%= group.name %></li>
+    <% }); %>
+    </ul>
+  <% } else { %>
+    <p>You are not a member of any groups yet.</p>
+  <% } %>
+  <a href="/create-group" class="btn btn-primary">Create Group</a>
+  <form action="/logout" method="post">
+    <button type="submit">Logout</button>
+  </form>
+</body>
+</html>

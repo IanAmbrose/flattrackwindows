@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Profile</title>
+    <link rel="stylesheet" href="/css/styles.css">
+  </head>
+  <body>
+    <header>
+      <nav>
+        <ul>
+          <li><a href="/dashboard">Group Management</a></li>
+          <li><a href="/profile">Profile</a></li>
+        </ul>
+      </nav>
+    </header>
+    <div class="container">
+      <h1><%= user.username %>'s Profile</h1>
+      <p>Username: <%= user.username %></p>
+      <h2>Group:</h2>
+      <% if (user.currentGroup) { %>
+        <p><%= user.currentGroup.name %></p>
+      <% } else { %>
+        <p>You are not a member of any group yet.</p>
+      <% } %>
+    </div>
+  </body>
+</html>

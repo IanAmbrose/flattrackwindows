@@ -5,59 +5,68 @@
     <link rel="stylesheet" href="../css/styles.css">
   </head>
   <body>
-    <h1>Welcome <%= username %>!</h1>
-    <% if (userGroups && userGroups.length > 0) { %>
-      <h2>Your Groups:</h2>
-      <ul>
-        <% userGroups.forEach(group => { %>
-          <li>
-            <a href="/dashboard/group-details/<%= group._id %>">Details</a>
-            <div class="group-item">
-              <span class="group-name"><%= group.name %></span>
-              <form method="POST" action="/dashboard/leave-group/<%= group._id %>">
-                <button type="submit" onclick="return confirmLeaveGroup('<%= group.name %>')" class="leave-group">x</button>
-              </form>
-            </div>
-          </li>
-        <% }); %>
-      </ul>
-    <% } else { %>
-      <p>You are not a member of any groups yet.</p>
-    <% } %>
-    <hr>
-    <% if (!inGroup) { %>
-      <h2>Group Management:</h2>
-      <h3>Create a new group:</h3>
-      <% if (messages && messages.error) { %>
-        <p style="color: red;"><%= messages.error %></p>
-      <% } else if (messages && messages.success) { %>
-        <p style="color: green;"><%= messages.success %></p>
+    <div class="container dashboard">
+      <h1>Welcome <%= username %>!</h1>
+      <% if (userGroups && userGroups.length > 0) { %>
+        <h2>Your Groups:</h2>
+        <ul class="dashboard-list">
+          <% userGroups.forEach(group => { %>
+            <li class="dashboard-list-item">
+              <div class="group-item">
+                <span class="group-name"><%= group.name %></span>
+                <div class="group-actions">
+                  <a href="/dashboard/group-details/<%= group._id %>">Details</a>
+                  <form method="POST" action="/dashboard/leave-group/<%= group._id %>">
+                    <button type="submit" onclick="return confirmLeaveGroup('<%= group.name %>')" class="leave-group">x</button>
+                  </form>
+                </div>
+              </div>
+            </li>
+          <% }); %>
+        </ul>
+      <% } else { %>
+        <p>You are not a member of any groups yet.</p>
       <% } %>
-      <form method="POST" action="/create-group">
-        <label for="groupName">Group Name:</label>
-        <input type="text" id="groupName" name="groupName" required>
-        <button type="submit">Create Group</button>
-      </form>
       <hr>
-      <h3>Join an existing group:</h3>
-      <% if (messages && messages.error) { %>
-        <p style="color: red;"><%= messages.error %></p>
-      <% } else if (messages && messages.success) { %>
-        <p style="color: green;"><%= messages.success %></p>
+      <% if (!inGroup) { %>
+        <h2>Group Management:</h2>
+        <div class="dashboard-actions">
+          <div>
+            <h3>Create a new group:</h3>
+            <% if (messages && messages.error) { %>
+              <p style="color: red;"><%= messages.error %></p>
+            <% } else if (messages && messages.success) { %>
+              <p style="color: green;"><%= messages.success %></p>
+            <% } %>
+            <form method="POST" action="/create-group">
+              <label for="groupName">Group Name:</label>
+              <input type="text" id="groupName" name="groupName" required>
+              <button type="submit">Create Group</button>
+            </form>
+          </div>
+          <div>
+            <h3>Join an existing group:</h3>
+            <% if (messages && messages.error) { %>
+              <p style="color: red;"><%= messages.error %></p>
+            <% } else if (messages && messages.success) { %>
+              <p style="color: green;"><%= messages.success %></p>
+            <% } %>
+            <form method="POST" action="/join-group">
+              <label for="groupCode">Group Code:</label>
+              <input type="text" id="groupCode" name="groupCode" required>
+              <button type="submit">Join Group</button>
+            </form>
+          </div>
+        </div>
       <% } %>
-      <form method="POST" action="/join-group">
-        <label for="groupCode">Group Code:</label>
-        <input type="text" id="groupCode" name="groupCode" required>
-        <button type="submit">Join Group</button>
-      </form>
-    <% } %>
-    <hr>
-    <h3>Your Account:</h3>
-    <p>
-      <form action="/logout" method="post" style="display: inline;">
-        <button type="submit" class="btn btn-link" style="padding: 0; text-decoration: none;">Logout</button>
-      </form>
-    </p>
+      <hr>
+      <h3>Your Account:</h3>
+      <p>
+        <form action="/logout" method="post" style="display: inline;">
+          <button type="submit" class="btn btn-link" style="padding: 0; text-decoration: none;">Logout</button>
+        </form>
+      </p>
+    </div>
     <script>
       function confirmLeaveGroup(groupName) {
         return confirm('Are you sure you want to leave "' + groupName + '"?');

@@ -7,7 +7,6 @@ const passport = require('passport');
 const flash = require('connect-flash');
 const path = require('path');
 const MongoStore = require('connect-mongo');
-
 // Import routes
 const indexRouter = require('./routes/index');
 const authRouter = require('./routes/auth');

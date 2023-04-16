@@ -1,11 +1,12 @@
 const express = require('express');
-const passport = require('passport');
 const { nanoid } = require('nanoid');
 const bcrypt = require('bcrypt');
 const User = require('../models/User');
 const Group = require('../models/Group');
 const LocalStrategy = require('passport-local').Strategy;
 const router = express.Router();
+const passport = require('passport');
+require('../config/passport');
 
 passport.use(
     new LocalStrategy(async (username, password, done) => {
@@ -43,7 +44,8 @@ router.get('/', (req, res) => {
 });
 
 router.get('/register', (req, res) => {
-  res.render('register');
+  const message = req.flash('error');
+  res.render('register', { message });
 });
 
 router.post('/register', async (req, res) => {

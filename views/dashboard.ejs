@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>Dashboard</title>
+    <link rel="stylesheet" href="../css/styles.css">
   </head>
   <body>
     <h1>Welcome <%= username %>!</h1>
@@ -10,10 +11,13 @@
       <ul>
         <% userGroups.forEach(group => { %>
           <li>
-            <%= group.name %>
-            <form method="POST" action="/dashboard/leave-group/<%= group._id %>">
-              <button type="submit" onclick="return confirmLeaveGroup('<%= group.name %>')">x</button>
-            </form>
+            <a href="/dashboard/group-details/<%= group._id %>">Details</a>
+            <div class="group-item">
+              <span class="group-name"><%= group.name %></span>
+              <form method="POST" action="/dashboard/leave-group/<%= group._id %>">
+                <button type="submit" onclick="return confirmLeaveGroup('<%= group.name %>')" class="leave-group">x</button>
+              </form>
+            </div>
           </li>
         <% }); %>
       </ul>

@@ -13,13 +13,14 @@ const authRouter = require('./routes/auth');
 const dashboardRouter = require('./routes/dashboard');
 const loginRouter = require('./routes/login');
 
+
 // Initialize express app
 const app = express();
 
 // Configure view engine and views directory
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-
+app.use(express.static('public'));
 // Configure express middleware
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));

@@ -81,25 +81,16 @@ router.post('/login', passport.authenticate('local', {
   failureRedirect: '/login',
   failureFlash: true
 }));
-
 router.get('/welcome', async (req, res) => {
-    if (!req.isAuthenticated()) {
-      return res.redirect('/login');
-    }
-  
-    try {
-      const userGroups = await Group.find({ members: req.user._id });
-      res.render('welcome', { 
-        username: req.user.username, 
-        userGroups: userGroups, 
-        messages: req.flash()
-      });
-    } catch (err) {
-      console.log(err);
-      req.flash('error', 'An error occurred. Please try again.');
-      res.redirect('/login');
-    }
-  });
+  try {
+    const userGroups = await Group.find({ members: req.user._id });
+    res.render('welcome', { username: req.user.username, userGroups: userGroups, messages: req.flash(), inGroup: userGroups.length > 0 });
+  } catch (err) {
+    console.log(err);
+    req.flash('error', 'An error occurred. Please try again.');
+    res.redirect('/dashboard');
+  }
+});
   
   router.post('/leave-group/:id', async (req, res) => {
     if (!req.isAuthenticated()) {
@@ -207,6 +198,9 @@ router.get('/welcome', async (req, res) => {
       }
   
       group.members.push(req.user._id);
+      if (!req.user.userGroups) {
+        req.user.userGroups = [];
+      }
       req.user.userGroups.push(group._id);
   
       // Save the changes to the database
@@ -255,5 +249,19 @@ router.get('/welcome', async (req, res) => {
       res.redirect('/welcome');
     }
   });
+
+  // DELETE a group
+router.delete('/group/:id', async (req, res) => {
+  try {
+    const group = await Group.findByIdAndDelete(req.params.id);
+    if (!group) {
+      return res.status(404).send();
+    }
+    res.send(group);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
+});
   
   module.exports = router;

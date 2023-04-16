@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= group.name %> Details</title>
+  </head>
+  <body>
+    <h1><%= group.name %> Details</h1>
+    <p>Join Code: <%= group.code %></p>
+    <h2>Members:</h2>
+    <% if (group.members && group.members.length > 0) { %>
+      <ul>
+        <% group.members.forEach(member => { %>
+          <li><%= member.username %></li>
+        <% }); %>
+      </ul>
+    <% } else { %>
+      <p>No members in this group yet.</p>
+    <% } %>
+    <hr>
+    <a href="/dashboard">Back to Dashboard</a>
+  </body>
+</html>

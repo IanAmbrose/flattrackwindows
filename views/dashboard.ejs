@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Welcome to the site!</title>
-    <style>
-    </style>
+    <title>Dashboard</title>
   </head>
   <body>
     <h1>Welcome <%= username %>!</h1>
@@ -12,7 +10,6 @@
       <ul>
         <% userGroups.forEach(group => { %>
           <li>
-            <a href="/dashboard/group-details/<%= group._id %>">Details</a>
             <%= group.name %>
             <form method="POST" action="/dashboard/leave-group/<%= group._id %>">
               <button type="submit" onclick="return confirmLeaveGroup('<%= group.name %>')">x</button>
@@ -52,9 +49,11 @@
     <% } %>
     <hr>
     <h3>Your Account:</h3>
-    <p><form action="/logout" method="post" style="display: inline;">
-      <button type="submit" class="btn btn-link" style="padding: 0; text-decoration: none;">Logout</button>
-    </form></p>
+    <p>
+      <form action="/logout" method="post" style="display: inline;">
+        <button type="submit" class="btn btn-link" style="padding: 0; text-decoration: none;">Logout</button>
+      </form>
+    </p>
     <script>
       function confirmLeaveGroup(groupName) {
         return confirm('Are you sure you want to leave "' + groupName + '"?');

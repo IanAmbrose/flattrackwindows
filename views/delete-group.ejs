@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Delete Group</title>
+  </head>
+  <body>
+    <h1>Delete Group <%= groupName %></h1>
+    <p>Are you sure you want to delete the group <%= groupName %>?</p>
+    <form method="POST" action="/dashboard/delete-group/<%= groupId %>">
+      <button type="submit">Delete Group</button>
+    </form>
+  </body>
+</html>

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Join Group</title>
+  </head>
+  <body>
+    <h1>Join a Group</h1>
+    <% if (messages && messages.error) { %>
+      <p style="color: red;"><%= messages.error %></p>
+    <% } %>
+    <form method="POST" action="/join-group">
+      <label for="groupCode">Group Code:</label>
+      <input type="text" id="groupCode" name="groupCode" required>
+      <button type="submit">Join Group</button>
+    </form>
+  </body>
+</html>

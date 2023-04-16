@@ -1,211 +1,64 @@
 const express = require('express');
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
-const session = require('express-session');
-const flash = require('connect-flash');
-const dotenv = require('dotenv');
-const { nanoid } = require('nanoid');
-const path = require('path');
-
-const User = require('./models/User');
-const Group = require('./models/Group');
-
-dotenv.config();
-
 const app = express();
+const mongoose = require('mongoose');
+const passport = require('passport');
+const flash = require('connect-flash');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
 
-mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('Connected to MongoDB'))
+
+require('dotenv').config();
+// Passport config
+require('./config/passport')(passport);
+
+// DB config
+const db = process.env.MONGO_URI;
+
+// Connect to MongoDB
+mongoose.connect(db, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('MongoDB connected'))
   .catch(err => console.log(err));
 
+// EJS
+app.set('view engine', 'ejs');
+
+// Bodyparser
 app.use(express.urlencoded({ extended: false }));
-app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: false }));
+
+// Express session
+app.use(session({
+  secret: 'secret',
+  resave: true,
+  saveUninitialized: true,
+  store: MongoStore.create({
+    mongoUrl: db,
+    mongoOptions: { useNewUrlParser: true, useUnifiedTopology: true },
+    ttl: 14 * 24 * 60 * 60 // = 14 days. Default
+  })
+}));
+
+// Passport middleware
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Connect flash
 app.use(flash());
 
-passport.use(new LocalStrategy(async (username, password, done) => {
-  try {
-    const user = await User.findOne({ username });
-
-    if (!user) {
-      return done(null, false, { message: 'Incorrect username.' });
-    }
-
-    const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword) {
-      return done(null, false, { message: 'Incorrect password.' });
-    }
-
-    return done(null, user);
-  } catch (err) {
-    return done(err);
-  }
-}));
-
-passport.serializeUser((user, done) => {
-  done(null, user.id);
+// Global variables
+app.use((req, res, next) => {
+  res.locals.success_msg = req.flash('success_msg');
+  res.locals.error_msg = req.flash('error_msg');
+  res.locals.error = req.flash('error');
+  res.locals.user = req.user || null;
+  next();
 });
 
-passport.deserializeUser(async (id, done) => {
-  try {
-    const user = await User.findById(id);
-    done(null, user);
-  } catch (err) {
-    done(err, null);
-  }
-});
+// Routes
+app.use('/', require('./routes/index'));
+app.use('/users', require('./routes/userRoutes'));
+app.use('/groups', require('./routes/groupRoutes'));
+app.use('/dashboard', require('./routes/dashboard'));
 
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+const PORT = process.env.PORT || 5000;
 
-app.get('/', (req, res) => {
-  res.render('index');
-});
-
-app.get('/register', (req, res) => {
-  res.render('register');
-});
-
-app.post('/register', async (req, res) => {
-  const { username, password } = req.body;
-
-  try {
-    const existingUser = await User.findOne({ username });
-    if (existingUser) {
-      req.flash('error', 'Username already exists. Please choose another username.');
-      return res.redirect('/register');
-    }
-
-    const hash = await bcrypt.hash(password, 10);
-    const newUser = new User({ username, password: hash });
-    await newUser.save();
-
-    req.flash('success', 'Registration successful! You can now log in.');
-    res.redirect('/login');
-  } catch (err) {
-    console.log(err);
-    req.flash('error', 'An error occurred. Please try again.');
-    res.redirect('/register');
-  }
-});
-
-app.get('/login', (req, res) => {
-  res.render('login');
-});
-
-app.post('/login', passport.authenticate('local', {
-  successRedirect: '/welcome',
-  failureRedirect: '/login',
-  failureFlash: true
-}));
-
-app.get('/welcome', async (req, res) => {
-  if (!req.isAuthenticated()) {
-    return res.redirect('/login');
-  }
-
-  try {
-    const userGroups = await Group.find({ members: req.user._id });
-    res.render('welcome', { username: req.user.username, userGroups });
-  } catch (err) {
-    console.log(err);
-    req.flash('error', 'An error occurred. Please try again.');
-    res.redirect('/login');
-  }
-});
-
-app.post('/logout', (req, res) => {
-  req.logout((err) => {
-    if (err) {
-      console.log(err);
-      req.flash('error', 'An error occurred. Please try again.');
-      res.redirect('/login');
-    } else {
-      req.flash('success', 'You have logged out successfully.');
-      res.redirect('/login');
-    }
-  });
-});
-
-app.get('/create-group', (req, res) => {
-  res.render('create-group', { messages: req.flash() });
-});
-
-app.post('/create-group', async (req, res) => {
-  if (!req.isAuthenticated()) {
-    return res.redirect('/login');
-  }
-
-  const { groupName } = req.body;
-  const groupCode = nanoid(6);
-
-  try {
-    const group = new Group({ name: groupName, code: groupCode, admin: req.user._id, members: [req.user._id] });
-    await group.save();
-    req.flash('success', `Group ${groupName} created successfully. Invite members with the code: ${groupCode}`);
-    res.redirect('/welcome');
-  } catch (err) {
-    console.log(err);
-    req.flash('error', 'An error occurred. Please try again.');
-    res.redirect('/create-group');
-  }
-});
-
-app.get('/join-group', (req, res) => {
-  if (!req.isAuthenticated()) {
-    return res.redirect('/login');
-  }
-  res.render('join-group');
-});
-
-app.post('/join-group', async (req, res) => {
-  if (!req.isAuthenticated()) {
-    return res.redirect('/login');
-  }
-
-  const { groupCode } = req.body;
-
-  try {
-    const group = await Group.findOne({ code: groupCode });
-    if (!group) {
-      req.flash('error', 'Invalid group code. Please check and try again.');
-      return res.redirect('/join-group');
-    }
-
-    if (group.members.includes(req.user._id)) {
-      req.flash('error', 'You are already a member of this group.');
-      return res.redirect('/join-group');
-    }
-
-    group.members.push(req.user._id);
-    await group.save();
-    req.flash('success', `You have successfully joined the group ${group.name}.`);
-    res.redirect('/welcome');
-  } catch (err) {
-    console.log(err);
-    req.flash('error', 'An error occurred. Please try again.');
-    res.redirect('/join-group');
-  }
-});
-
-app.get('/groups', async (req, res) => {
-  if (!req.isAuthenticated()) {
-    return res.redirect('/login');
-  }
-
-  try {
-    const groups = await Group.find().populate('members', 'username');
-    res.render('groups', { groups });
-  } catch (err) {
-    console.log(err);
-    req.flash('error', 'An error occurred. Please try again.');
-    res.redirect('/welcome');
-  }
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
-
+app.listen(PORT, console.log(`Server started on port ${PORT}`));

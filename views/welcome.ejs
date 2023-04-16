@@ -1,23 +1,42 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Welcome</title>
-</head>
-<body>
-  <h1>Welcome, <%= username %>!</h1>
-  <p>Here are your groups:</p>
-  <% if (userGroups.length > 0) { %>
-    <ul>
-    <% userGroups.forEach(group => { %>
-      <li><%= group.name %></li>
-    <% }); %>
-    </ul>
-  <% } else { %>
-    <p>You are not a member of any groups yet.</p>
-  <% } %>
-  <a href="/create-group" class="btn btn-primary">Create Group</a>
-  <form action="/logout" method="post">
-    <button type="submit">Logout</button>
-  </form>
-</body>
-</html>
+  <head>
+    <title>Welcome to the site!</title>
+  </head>
+  <body>
+    <h1>Welcome <%= username %>!</h1>
+    <% if (userGroups && userGroups.length > 0) { %>
+      <h2>Your Groups:</h2>
+      <ul>
+        <% userGroups.forEach(group => { %>
+          <li><%= group.name %>
+            <form method="POST" action="/leave-group/<%= group._id %>">
+              <button type="submit">Leave Group</button>
+            </form>
+          </li>
+        <% }); %>
+      </ul>
+    <% } else { %>
+      <p>You are not a member of any groups yet.</p>
+    <% } %>
+    <hr>
+    <h2>Group Management:</h2>
+    <h3>Create a new group:</h3>
+    <% if (messages && messages.error) { %>
+      <p style="color: red;"><%= messages.error %></p>
+    <% } else if (messages && messages.success) { %>
+      <p style="color: green;"><%= messages.success %></p>
+    <% } %>
+    <form method="POST" action="/create-group">
+      <label for="groupName">Group Name:</label>
+      <input type="text" id="groupName" name="groupName" required>
+      <button type="submit">Create Group</button>
+    </form>
+    <hr>
+    <h3>Join an existing group:</h3>
+    <% if (messages && messages.error) { %>
+      <p style="color: red;"><%= messages.error %></p>
+    <% } else if (messages && messages.success) { %>
+      <p style="color: green;"><%= messages.success %></p>
+    <% } %>
+    <form method="POST" action="/join-group">

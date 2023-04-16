@@ -49,7 +49,7 @@ router.get('/register', (req, res) => {
 });
 
 router.post('/register', async (req, res) => {
-  const { username, password } = req.body;
+  const { username, email, password } = req.body;
 
   try {
     const existingUser = await User.findOne({ username });
@@ -59,7 +59,7 @@ router.post('/register', async (req, res) => {
     }
 
     const hash = await bcrypt.hash(password, 10);
-    const newUser = new User({ username, password: hash });
+    const newUser = new User({ username, email, password: hash });
     await newUser.save();
 
     req.flash('success', 'Registration successful! You can now log in.');
@@ -70,6 +70,7 @@ router.post('/register', async (req, res) => {
     res.redirect('/register');
   }
 });
+
 router.get('/login', function (req, res, next) {
   const message = req.flash('error');
   res.render('login', { message });

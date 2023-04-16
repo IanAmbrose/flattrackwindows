@@ -2,6 +2,31 @@
 <html>
   <head>
     <title>Welcome to the site!</title>
+    <style>
+      ul {
+        list-style-type: none;
+        padding: 0;
+      }
+
+      li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 5px;
+      }
+
+      li button {
+        background-color: #ff0000;
+        color: #ffffff;
+        border: none;
+        border-radius: 50%;
+        font-size: 14px;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        margin-left: 5px;
+      }
+    </style>
   </head>
   <body>
     <h1>Welcome <%= username %>!</h1>
@@ -9,9 +34,10 @@
       <h2>Your Groups:</h2>
       <ul>
         <% userGroups.forEach(group => { %>
-          <li><%= group.name %>
-            <form method="POST" action="/leave-group/<%= group._id %>">
-              <button type="submit">Leave Group</button>
+          <li>
+            <%= group.name %>
+            <form method="POST" action="/dashboard/leave-group/<%= group._id %>">
+              <button type="submit">x</button>
             </form>
           </li>
         <% }); %>
@@ -40,3 +66,12 @@
       <p style="color: green;"><%= messages.success %></p>
     <% } %>
     <form method="POST" action="/join-group">
+      <label for="groupCode">Group Code:</label>
+      <input type="text" id="groupCode" name="groupCode" required>
+      <button type="submit">Join Group</button>
+    </form>
+    <hr>
+    <h3>Your Account:</h3>
+    <p><a href="/logout">Logout</a></p>
+  </body>
+</html>

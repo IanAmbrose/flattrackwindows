@@ -1,6 +1,6 @@
 const express = require('express');
 const passport = require('passport');
-const { ensureAuthenticated } = require('../config/auth');
+const { ensureAuthenticated } = require('./auth');
 const { nanoid } = require('nanoid');
 
 const User = require('../models/User');

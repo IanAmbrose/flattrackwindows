@@ -68,9 +68,9 @@ router.post('/register', async (req, res) => {
     res.redirect('/register');
   }
 });
-
-router.get('/login', (req, res) => {
-  res.render('login');
+router.get('/login', function (req, res, next) {
+  const message = req.flash('error');
+  res.render('login', { message });
 });
 
 router.post('/login', passport.authenticate('local', {

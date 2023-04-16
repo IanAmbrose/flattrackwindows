@@ -5,7 +5,6 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const passport = require('passport');
 const flash = require('connect-flash');
-const hbs = require('hbs');
 const path = require('path');
 const MongoStore = require('connect-mongo');
 
@@ -13,36 +12,30 @@ const MongoStore = require('connect-mongo');
 const indexRouter = require('./routes/index');
 const authRouter = require('./routes/auth');
 const dashboardRouter = require('./routes/dashboard');
+const loginRouter = require('./routes/login');
 
 // Initialize express app
 const app = express();
 
 // Configure view engine and views directory
-app.set('view engine', 'hbs');
+app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-
-// Register handlebars partials directory
-hbs.registerPartials(path.join(__dirname, 'views/partials'));
 
 // Configure express middleware
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 
 // Configure express-session middleware
+const sessionStore = MongoStore.create({
+  mongoUrl: process.env.MONGODB_URI,
+  collectionName: 'sessions',
+});
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({
-      mongoUrl: process.env.MONGODB_URI,
-      ttl: 7 * 24 * 60 * 60, // 7 days
-      autoRemove: 'native',
-      mongoOptions: {
-        useUnifiedTopology: true,
-        useNewUrlParser: true,
-      },
-    }),
+    store: sessionStore,
   })
 );
 
@@ -67,13 +60,13 @@ app.use((req, res, next) => {
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/dashboard', dashboardRouter);
-app.use('/index', indexRouter);
+app.use('/login', loginRouter);
 
 // Connect to MongoDB
 mongoose
   .connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
-    useUnifiedTopology: true,
+    useUnifiedTopology: true
   })
   .then(() => {
     console.log('Connected to MongoDB');

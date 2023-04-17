@@ -10,6 +10,11 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+  },
   currentGroup: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Group',

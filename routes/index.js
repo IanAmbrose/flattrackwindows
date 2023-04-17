@@ -159,6 +159,10 @@ router.get('/welcome', async (req, res) => {
     try {
       const group = new Group({ name: groupName, code: groupCode, admin: req.user._id, members: [req.user._id] });
       await group.save();
+  
+      // Update the user's currentGroup field
+      await User.findByIdAndUpdate(req.user._id, { currentGroup: group._id });
+  
       req.flash('success', `Group ${groupName} created successfully. Invite members with the code: ${groupCode}`);
       res.redirect('/welcome');
     } catch (err) {
@@ -167,7 +171,6 @@ router.get('/welcome', async (req, res) => {
       res.redirect('/create-group');
     }
   });
-  
   router.get('/join-group', (req, res) => {
     if (!req.isAuthenticated()) {
       return res.redirect('/login');

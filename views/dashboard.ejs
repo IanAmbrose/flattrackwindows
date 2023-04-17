@@ -5,6 +5,14 @@
     <link rel="stylesheet" href="../css/styles.css">
   </head>
   <body>
+    <header>
+      <nav>
+        <ul>
+          <li><a href="/dashboard">Group Management</a></li>
+          <li><a href="/profile">Profile</a></li>
+        </ul>
+      </nav>
+    </header>
     <div class="container dashboard">
       <h1>Welcome <%= username %>!</h1>
       <% if (userGroups && userGroups.length > 0) { %>

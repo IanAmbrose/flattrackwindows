@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const User = require('../models/User');
 
 // Middleware to check if the user is authenticated
 function isAuthenticated(req, res, next) {
@@ -13,7 +14,7 @@ function isAuthenticated(req, res, next) {
 // Profile route
 router.get('/', isAuthenticated, async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).populate('groups');
+    const user = await User.findById(req.user._id).populate('currentGroup');
     res.render('profile', { user });
   } catch (err) {
     console.error(err);

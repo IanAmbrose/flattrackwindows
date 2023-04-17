@@ -73,12 +73,33 @@ router.post('/leave-group/:id', async (req, res) => {
 
 // Route to create a group
 router.post('/create-group', async (req, res) => {
-  if (req.user.groupId) {
+  if (req.user.currentGroup) {
     req.flash('error', 'You are already in a group. You cannot create a new group.');
     return res.redirect('/dashboard');
   }
 
-  // Your existing code to create a new group
+  const groupName = req.body.groupName;
+
+  try {
+    const newGroup = new Group({
+      name: groupName,
+      admin: req.user._id,
+      members: [req.user._id],
+      code: cryptoRandomString({ length: 8, type: 'url-safe' }),
+    });
+
+    const savedGroup = await newGroup.save();
+    
+    req.user.currentGroup = savedGroup._id;
+    await req.user.save();
+
+    req.flash('success', 'Group successfully created.');
+    res.redirect('/dashboard');
+  } catch (err) {
+    console.log(err);
+    req.flash('error', 'An error occurred. Please try again.');
+    res.redirect('/dashboard');
+  }
 });
 
 router.post('/delete-group/:id', async (req, res) => {
@@ -143,7 +164,7 @@ router.post('/join-group', async (req, res) => {
     }
 
     await Group.findByIdAndUpdate(group._id, { $push: { members: req.user._id } });
-    await User.findByIdAndUpdate(req.user._id, { groupId: group._id });
+    await User.findByIdAndUpdate(req.user._id, { currentGroup: group._id });
 
     req.flash('success', 'You have successfully joined the group.');
     res.redirect('/dashboard');
@@ -153,5 +174,6 @@ router.post('/join-group', async (req, res) => {
     res.redirect('/dashboard');
   }
 });
+
 
 module.exports = router;

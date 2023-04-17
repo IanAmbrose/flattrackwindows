@@ -16,6 +16,7 @@
     <div class="container">
       <h1><%= user.username %>'s Profile</h1>
       <p>Username: <%= user.username %></p>
+      <p>Email: <%= user.email %></p>
       <h2>Group:</h2>
       <% if (user.currentGroup) { %>
         <p><%= user.currentGroup.name %></p>

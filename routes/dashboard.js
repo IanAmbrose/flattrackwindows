@@ -81,16 +81,6 @@ router.post('/create-group', async (req, res) => {
   // Your existing code to create a new group
 });
 
-// Route to join a group
-router.post('/join-group', async (req, res) => {
-  if (req.user.groupId) {
-    req.flash('error', 'You are already in a group. You cannot join another group.');
-    return res.redirect('/dashboard');
-  }
-
-  // Your existing code to join a group
-});
-
 router.post('/delete-group/:id', async (req, res) => {
   console.log('Delete group route triggered');
   try {
